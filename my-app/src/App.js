@@ -16,7 +16,10 @@ export default function App() {
           </div>
         </div>
       </div>
-      <p>Coded by Stephanie Durocher</p>
+      <footer>
+        <p>Coded by Stephanie Durocher</p>
+        <p>Open sourced on GitHub</p>
+      </footer>
     </div>
   );
 }
