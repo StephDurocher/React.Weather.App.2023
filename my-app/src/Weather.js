@@ -1,54 +1,69 @@
-import React from "react";
-//import React, { useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
+import WeatherForecast from "./WeatherForecast.js";
 import axios from "axios";
+import Info from "./Info.js";
 
 export default function Weather(props) {
-  // let tempHigh = `Temperature is 89℉`;
-  //let tempLow = `Temperature is 20℉`;
-  let city = "Raleigh";
+  const [weatherData, setWeatherData] = useState({ ready: false });
+  const [city, setCity] = useState(props.defaultCity);
 
-  // function handleResponse(response) {
-  //  setWeatherData({
-  //  ready: true,
-  //temperature: Response.data.main.temp,
-  //humidity: Response.data.main.humidity,
-  //date: new Date(response.date.dt * 1000),
-  //description: response.data.weather[0].description,
-  //iconUrl: "http://openweathermap.org/img/wn/10d@2x.png",
-  //wind: response.data.wind.speed,
-  //city: response.data.name,
-  //    });
-  // }
-
-  function handleClick(event) {
-    event.preventDefault();
-    alert("I am functioning!");
+  function handleResponse(response) {
+    setWeatherData({
+      ready: true,
+      date: new Date(response.date.dt * 1000),
+      coordinates: response.data.coord,
+      temperature: response.data.main.temp,
+      wind: response.data.main.wind.speed,
+      city: response.data.name,
+      humidity: response.data.main.humidity,
+      description: response.data.weather[0].description,
+      icon: response.data.weather[0].icon,
+    });
   }
-  return (
-    <div className="SearchBox">
-      <form>
-        <input type="search" placeholder="Search city..."></input>
-        <button type="submit" onClick={handleClick}>
-          Search
-        </button>
-      </form>
-      <div className="row">
-        <div className="col-12">
-          <ul>
-            <li>Today's Weather for {city} </li>
-            <li>Temperature high</li>
-            <li>Temperature low</li>
-            <li>Image</li>
-          </ul>
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    search();
+  }
+
+  function handleCityChange(event) {
+    setCity(event.target.value);
+  }
+
+  function search() {
+    const apiKey = `97c2f6a3b34509ac62090edc5d18d949`;
+    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`;
+    axios.get(apiUrl).then(handleResponse);
+  }
+
+  if (weatherData.ready) {
+    return (
+      <div className="SearchBox">
+        <form onSubmit={handleSubmit}>
+          <div className="row">
+            <div className="col-9">
+              <input
+                type="search"
+                placeholder="Search city..."
+                onChange={handleCityChange}
+              />
+            </div>
+            <div className="col-3">
+              <input type="submit" value="Search" className="searchButton" />
+            </div>
+          </div>
+        </form>
+        <div className="row">
+          <div className="col-12">
+            <Info data={weatherData} />
+            <WeatherForecast coordinates={weatherData.coordinates} />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  } else {
+    search();
+    return "loading...";
+  }
 }
-
-//function search(props) {
-//let apiKey = "21f347fd627fde024ba524524a760ab9";
-// let apiUrl = `https://api.openweathermap.org/data/2.5/weather/?q=${city}&appid=${apiKey}&units=metric`;
-// axios.get(apiUrl).then(handleResponse);
-//}
